@@ -1,37 +1,61 @@
-import { expect, describe, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import { createTask } from "../src/controller/taskController.js";
-//import type{Task} from "./src/types/types.ts"
+import type { Request, Response } from "express";
 
-
+function mockResponse() {
+  const res = {} as Response;
+  res.status = vi.fn().mockReturnValue(res);
+  res.json = vi.fn().mockReturnValue(res);
+  return res;
+}
 
 it("should reject request if the typeof title is not a string", () => {
-    
-  const task = {
-    title: "Master REST API",
-  };
+  const req = { body: { title: 467 } } as Request;
+  const res = mockResponse();
 
-  const req:Record<string, any> = {
-    params:null,
-    query:null,
-    body: task,
-    headers: null,
-    record: {"key":"value"}
-  };
-
-const res:Response = {}
-createTask(req, res)
-const resObject = {
-        status: "failed",
-        code: 400,
-        error: "Bad Request",
-        message: "Title must be a string",
-      }
-expect(res.json).toBe(resObject)
+  createTask(req, res);
+  expect(res.status).toHaveBeenCalledWith(400);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      status: "failed",
+      code: 400,
+      message: "Title must be a string",
+    }),
+  );
 });
 
-// import { expect, test } from 'vitest'
-// import { sum } from './sum.js'
+it("should reject request if title is null or an empty string", ()=>{
+  const req = {body: {title: " "}} as Request;
+  const res = mockResponse();
+  createTask(req, res);
+  expect(res.status).toHaveBeenCalledWith(400);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      status: "failed",
+      code: 400,
+      message:"Title is required"
+    })
+  )
+})
 
-// test('adds 1 + 2 to equal 3', () => {
-//   expect(sum(1, 2)).toBe(3)
-// })
+it("successfully creates a task if all the validations are passed", () => {
+  const req = { body: { title: "Master REST API" } } as Request;
+  const res = mockResponse();
+
+  createTask(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(201);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      status: "success",
+      code: 201,
+      message: "Task created successfully",
+      data: expect.objectContaining({
+        id: expect.any(String),
+        title: "Master REST API",
+        completion_status: false,
+        created_at: expect.any(String),
+      }),
+    })
+  );
+});

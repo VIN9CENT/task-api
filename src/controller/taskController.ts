@@ -38,7 +38,7 @@ export const createTask = (req: Request, res: Response) => {
       status: "success",
       code: 201,
       data: newTask,
-      message: "Task created successfully ",
+      message: "Task created successfully",
     });
   } catch (Error) {
     res.status(500).json({
@@ -50,4 +50,3 @@ export const createTask = (req: Request, res: Response) => {
   }
 };
 
-//createTask()
