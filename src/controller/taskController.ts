@@ -1,6 +1,5 @@
 import type { Request, Response } from "express";
 import type { Task } from "../types/types.js";
-import { json } from "node:stream/consumers";
 
 let tasks: Task[] = [];
 export const createTask = (req: Request, res: Response) => {
