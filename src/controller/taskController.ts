@@ -1,27 +1,24 @@
 import type { Request, Response } from "express";
 import type { Task } from "../types/types.js";
+import {
+  invalidTitleRes,
+  missingTitleRes,
+  serverErrorRes,
+  successRes,
+} from "../utils/responseObject.js";
 
 let tasks: Task[] = [];
+
 export const createTask = (req: Request, res: Response) => {
   try {
     const { title, description, completion_status } = req.body;
 
     if (typeof title !== "string") {
-      res.status(400).json({
-        status: "failed",
-        code: 400,
-        error: "Bad Request",
-        message: "Title must be a string",
-      });
+      res.status(400).json(invalidTitleRes);
       return;
     }
     if (!title || title.trim().length === 0) {
-      res.status(400).json({
-        status: "failed",
-        code: 400,
-        error: "Bad Request",
-        message: "Title is required",
-      });
+      res.status(400).json(missingTitleRes);
       return;
     }
 
@@ -34,19 +31,9 @@ export const createTask = (req: Request, res: Response) => {
       created_at: new Date().toLocaleDateString(),
     };
     tasks.push(newTask);
-    res.status(201).json({
-      status: "success",
-      code: 201,
-      data: newTask,
-      message: "Task created successfully",
-    });
+    res.status(201).json(successRes(newTask));
   } catch (Error) {
-    res.status(500).json({
-      status: "failed",
-      code: 500,
-      error: "Internal server error",
-      message: "Server error occured while processing your request",
-    });
+    res.status(500).json(serverErrorRes);
   }
 };
 
