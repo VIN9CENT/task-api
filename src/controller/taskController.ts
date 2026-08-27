@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
 import type { Task } from "../types/types.js";
+import { json } from "node:stream/consumers";
 
-const tasks: Task[] = [];
+let tasks: Task[] = [];
 export const createTask = (req: Request, res: Response) => {
   try {
     const { title, description, completion_status } = req.body;
@@ -50,3 +51,19 @@ export const createTask = (req: Request, res: Response) => {
   }
 };
 
+export const getTasks = (req: Request, res: Response) => {
+  if (!tasks) {
+    res.status(500).json({
+      status: "failed",
+      code: 500,
+      error: "Internal server error",
+      message: "Server error occured while processing your request",
+    });
+  }
+  res.status(200).json({
+    status: "success",
+    code: 200,
+    data: tasks,
+    message: "tasks retrieved successfully",
+  });
+};
