@@ -7,7 +7,7 @@ import {
   successRes,
 } from "../utils/responseObject.js";
 
-let tasks: Task[] = [];
+export let tasks: Task[] = [];
 
 export const createTask = (req: Request, res: Response) => {
   try {
@@ -46,6 +46,7 @@ export const getTasks = (req: Request, res: Response) => {
       message: "Server error occured while processing your request",
     });
   }
+
   res.status(200).json({
     status: "success",
     code: 200,

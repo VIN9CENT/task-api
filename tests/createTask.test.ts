@@ -1,5 +1,9 @@
 import { expect, it, vi } from "vitest";
-import { createTask } from "../src/controller/taskController.js";
+import {
+  createTask,
+  getTasks,
+  tasks,
+} from "../src/controller/taskController.js";
 import type { Request, Response } from "express";
 import {
   invalidTitleRes,
@@ -50,5 +54,52 @@ it("successfully creates a task if all the validations are passed", () => {
   expect(res.status).toHaveBeenCalledWith(201);
   expect(res.json).toHaveBeenCalledWith(
     expect.objectContaining(successRes(expectedTask)),
+  );
+});
+
+it("should return an empty array when no task exists", () => {
+  tasks.length = 0;
+  const req = {} as Request;
+  const res = mockResponse();
+
+  getTasks(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      status: "success",
+      code: 200,
+      data: [],
+      message: "tasks retrieved successfully",
+    }),
+  );
+});
+
+it("should have array tasks containing task object", () => {
+  tasks.push({
+    id: "123",
+    title: "live coding",
+    completion_status: false,
+    created_at: new Date().toLocaleDateString(),
+  });
+  const req = {} as Request;
+  const res = mockResponse();
+
+  getTasks(req, res);
+
+  expect(res.status).toHaveBeenCalledWith(200);
+  expect(res.json).toHaveBeenCalledWith(
+    expect.objectContaining({
+      status: "success",
+      code: 200,
+      data: expect.arrayContaining([
+        expect.objectContaining({
+          id: "123",
+          title: "live coding",
+          completion_status: false,
+        }),
+      ]),
+      message: "tasks retrieved successfully",
+    }),
   );
 });
